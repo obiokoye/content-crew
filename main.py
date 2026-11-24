@@ -35,7 +35,7 @@ console = Console(highlight=False)
 
 AGENTS = [
     ("Researcher", "🔎", "cyan", "searches the source library"),
-    ("Writer", "✍️ ", "magenta", "drafts the article"),
+    ("Writer", "📝", "magenta", "drafts the article"),
     ("Editor", "🧐", "yellow", "fact-checks, trims, formats"),
 ]
 COLORS = {name: color for name, _, color, _ in AGENTS}
@@ -105,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
         agent = agent.strip()
         color = COLORS.get(agent, "white")
         if agent == "Researcher":
-            body = Text(output.strip())
+            body = Text(output.strip(), no_wrap=True, overflow="ellipsis")
         elif agent == "Writer":
             lines = output.strip().splitlines()
             preview = "\n".join(lines[:6]) + (f"\n… ({len(output.split())} words)" if len(lines) > 6 else "")
@@ -119,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
             status.update(f"[{COLORS[name]}]{ICONS[name]} {name} is working…[/]")
 
     def on_reject(attempt: int, problems: list[str]) -> None:
-        console.print(f"  [bold red]🛡  Guardrail rejected the editor's attempt {attempt}:[/]")
+        console.print(f"  [bold red]🛑 Guardrail rejected the editor's attempt {attempt}:[/]")
         for problem in problems:
             console.print(f"     [red]• {problem}[/]")
         console.print("     [dim]→ sent back to the Editor with this feedback[/]")

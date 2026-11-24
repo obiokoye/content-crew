@@ -79,7 +79,7 @@ def make_llm(settings: Settings) -> Any:
     if settings.demo:
         from .demo import ScriptedLLM
 
-        return ScriptedLLM()
+        return ScriptedLLM(delay=float(os.getenv("DEMO_DELAY", "0.8")))
 
     from crewai import LLM
 

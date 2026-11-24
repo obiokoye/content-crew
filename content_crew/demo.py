@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import Any
 
 from crewai import BaseLLM
@@ -118,9 +119,11 @@ class ScriptedLLM(BaseLLM):
     """Plays Researcher, Writer and Editor using CrewAI's text (ReAct) format."""
 
     _last_draft: str = PrivateAttr(default="")
+    _delay: float = PrivateAttr(default=0.0)
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, delay: float = 0.0, **kwargs: Any) -> None:
         super().__init__(model="demo-scripted", **kwargs)
+        self._delay = delay  # seconds per reply, so a demo run looks like a real one
 
     def supports_function_calling(self) -> bool:
         return False  # use CrewAI's "Action: / Action Input:" text protocol
@@ -134,6 +137,8 @@ class ScriptedLLM(BaseLLM):
         transcript = messages if isinstance(messages, str) else "\n".join(
             str(m.get("content", "")) for m in messages
         )
+        if self._delay:
+            time.sleep(self._delay)
         role = getattr(from_agent, "role", "") or _guess_role(transcript)
         topic = _between(transcript, "topic '", "'") or _between(transcript, "about '", "'") or "AI agents"
         if role == "Researcher":
